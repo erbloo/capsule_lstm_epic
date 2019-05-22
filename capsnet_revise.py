@@ -20,6 +20,7 @@ from capsulelayers import CapsuleLayer, PrimaryCap, Length, Mask
 import os
 import argparse
 from keras import callbacks
+from data_loader import load_data_example
 import pdb
 
 K.set_image_data_format('channels_last')
@@ -93,8 +94,8 @@ def train(model, data, args):
     """
     # unpacking the data
     (x_train, y_train, x_test, y_test) = data
-    y_train_onehot = to_categorical(y_train, 10)
-    y_test_onehot = to_categorical(y_test, 10)
+    y_train_onehot = to_categorical(y_train, 119)
+    y_test_onehot = to_categorical(y_test, 119)
 
     # callbacks
     log = callbacks.CSVLogger(args.save_dir + '/log.csv')
@@ -114,6 +115,7 @@ def train(model, data, args):
     model.fit([x_train, y_train_onehot], [y_train_onehot, x_train], batch_size=args.batch_size, epochs=args.epochs, validation_data=[[x_test, y_test_onehot], [y_test_onehot, x_test]], callbacks=[log, tb,checkpoint, lr_decay], verbose=2)
 
     return model
+
 
 if __name__ == "__main__":
     # setting the hyper parameters
@@ -142,8 +144,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(args)
 
-    x_train = np.random.rand(100, 32, 32, 32, 3)
-    y_train = np.random.randint(0, 1, (100))
+    (x_train, y_train) = load_data_example()
 
     # define model: testing data loaded only
     model = CapsNet_lstm(imgset_input_shape = x_train.shape[1:],
