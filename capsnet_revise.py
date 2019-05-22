@@ -148,7 +148,7 @@ if __name__ == "__main__":
 
     # define model: testing data loaded only
     model = CapsNet_lstm(imgset_input_shape = x_train.shape[1:],
-                                                  n_class=10,
+                                                  n_class=119,
                                                   routings=3)
 
     model.summary()
