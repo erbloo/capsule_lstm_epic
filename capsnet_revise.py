@@ -1,26 +1,14 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Feb  5 16:05:48 2018
-
-@author: ylu25
-"""
-
-'''
-    apply all classes MMAC dataset, include IMU data to form bi-model system, model generator output single model
-'''
-
 import numpy as np
 from keras import layers, models, optimizers
 from keras import backend as K
-from keras.utils import to_categorical
-import matplotlib.pyplot as plt
 from PIL import Image
 from capsulelayers import CapsuleLayer, PrimaryCap, Length, Mask
 import os
 import argparse
 from keras import callbacks
-from data_loader import load_data_example
+from data_loader import DataGenerator
+from epic_kitchens.dataset.epic_dataset import EpicVideoDataset
+from pathlib import Path
 import pdb
 
 K.set_image_data_format('channels_last')
@@ -29,7 +17,6 @@ K.set_image_data_format('channels_last')
 def CapsNet_lstm(imgset_input_shape, n_class, routings):
     img_total_input = layers.Input(shape=imgset_input_shape)    
     y = layers.Input(shape=(n_class,))
-    
     for loop_idx in range(imgset_input_shape[0]): 
         x = layers.Lambda(lambda img_total_input: img_total_input[:,loop_idx,:,:,:])(img_total_input)   
         conv1 = layers.Conv2D(filters=256, kernel_size=9, strides=1, padding='valid', activation='relu')(x)
@@ -93,15 +80,13 @@ def train(model, data, args):
     :return: The trained model
     """
     # unpacking the data
-    (x_train, y_train, x_test, y_test) = data
-    y_train_onehot = to_categorical(y_train, 119)
-    y_test_onehot = to_categorical(y_test, 119)
+    (gen_train, gen_val) = data
 
     # callbacks
     log = callbacks.CSVLogger(args.save_dir + '/log.csv')
     tb = callbacks.TensorBoard(log_dir=args.save_dir + '/tensorboard-logs',batch_size=args.batch_size, histogram_freq=int(args.debug))
-    checkpoint = callbacks.ModelCheckpoint(args.save_dir + '/weight-{epoch:02d}.h5', monitor='val_fc_out_acc',
-                                           save_best_only=True, save_weights_only=True , verbose=1)
+    checkpoint = callbacks.ModelCheckpoint(args.save_dir + '/weight-{epoch:02d}.h5', monitor='fc_img_out_acc',
+                                           save_best_only=False, save_weights_only=True , verbose=1)
     lr_decay = callbacks.LearningRateScheduler(schedule=lambda epoch: args.lr * (args.lr_decay ** epoch))
 
     # compile the model
@@ -110,9 +95,12 @@ def train(model, data, args):
                   loss_weights=[1., args.lam_recon],
                   metrics={'fc_out': 'accuracy'})
 
-
     # Training without data augmentation:
-    model.fit([x_train, y_train_onehot], [y_train_onehot, x_train], batch_size=args.batch_size, epochs=args.epochs, validation_data=[[x_test, y_test_onehot], [y_test_onehot, x_test]], callbacks=[log, tb,checkpoint, lr_decay], verbose=2)
+    model.fit_generator(generator=gen_train,
+                    epochs=args.epochs,
+                    callbacks=[log, tb,checkpoint, lr_decay], verbose=1,
+                    use_multiprocessing=True,
+                    workers=1)
 
     return model
 
@@ -144,13 +132,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(args)
 
-    (x_train, y_train) = load_data_example()
+    gulp_root = Path('../epic/data/processed/gulp')
+    class_type = 'verb'
+    rgb_train = EpicVideoDataset(gulp_root / 'rgb_train', class_type)
+    gen_train = DataGenerator(28472, 125, image_size=[32, 32], frame_length=4, shuffle=False, batch_size=args.batch_size)
 
     # define model: testing data loaded only
-    model = CapsNet_lstm(imgset_input_shape = x_train.shape[1:],
-                                                  n_class=119,
+    model = CapsNet_lstm(imgset_input_shape = [gen_train.frame_length, gen_train.image_size[0], gen_train.image_size[1], 3],
+                                                  n_class=gen_train.n_classes,
                                                   routings=3)
 
-    model.summary()
-
-    train(model=model, data=((x_train, y_train, x_train, y_train)), args=args)
+    train(model=model, data=(gen_train, None), args=args)
