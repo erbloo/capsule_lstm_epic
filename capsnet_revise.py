@@ -110,7 +110,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Capsule Network on MNIST.")
     parser.add_argument('--epochs', default=50, type=int)
     parser.add_argument('--batch_size', default=1, type=int)
-    parser.add_argument('--lr', default=0.001, type=float,
+    parser.add_argument('--lr', default=1e-5, type=float,
                         help="Initial learning rate")
     parser.add_argument('--lr_decay', default=0.9, type=float,
                         help="The value multiplied by lr at each epoch. Set a larger value for larger epochs")
@@ -131,15 +131,14 @@ if __name__ == "__main__":
                         help="The path of the saved weights. Should be specified when testing")
     args = parser.parse_args()
     print(args)
-
-    gulp_root = Path('../epic/data/processed/gulp')
-    class_type = 'verb'
-    rgb_train = EpicVideoDataset(gulp_root / 'rgb_train', class_type)
+    
+    # https://github.com/epic-kitchens/starter-kit-action-recognition/tree/master/notebooks
     gen_train = DataGenerator(28472, 125, image_size=[32, 32], frame_length=4, shuffle=False, batch_size=args.batch_size)
 
     # define model: testing data loaded only
     model = CapsNet_lstm(imgset_input_shape = [gen_train.frame_length, gen_train.image_size[0], gen_train.image_size[1], 3],
                                                   n_class=gen_train.n_classes,
                                                   routings=3)
+    model.load_weights('./test/weight_lr001_e1.h5')
 
     train(model=model, data=(gen_train, None), args=args)

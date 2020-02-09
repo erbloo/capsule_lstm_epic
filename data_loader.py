@@ -1,11 +1,13 @@
 import pdb
 import pandas as pd
+import os
 import numpy as np
 from gulpio import GulpDirectory
 from epic_kitchens.dataset.epic_dataset import EpicVideoDataset, EpicVideoFlowDataset, GulpVideoSegment
 import keras
 from pathlib import Path
 from PIL import Image
+from tqdm import tqdm
 
 
 class DataGenerator(keras.utils.Sequence):
@@ -71,12 +73,13 @@ class DataGenerator(keras.utils.Sequence):
         Number of unique noun classes in training : 331
         '''
         n_classes = self.n_classes
-        #train_labels = pd.read_pickle('../epic/data/processed/train_labels.pkl')
-        #test_seen_labels = pd.read_pickle('../epic/data/processed/test_seen_labels.pkl')
-        #test_unseen_labels = pd.read_pickle('../epic/data/processed/test_unseen_labels.pkl')
+        # train_labels = pd.read_pickle('../epic/data/processed/train_labels.pkl')
+        # test_seen_labels = pd.read_pickle('../epic/data/processed/test_seen_labels.pkl')
+        # test_unseen_labels = pd.read_pickle('../epic/data/processed/test_unseen_labels.pkl')
 
-        gulp_root = Path('../epic/data/processed/gulp')
-        class_type = 'verb'
+        # https://github.com/epic-kitchens/starter-kit-action-recognition/tree/master/notebooks
+        gulp_root = Path('/data1/yantao/epic/epic/data/processed/gulp')
+        class_type = 'verb'  # 'verb+noun'
         rgb_train = EpicVideoDataset(gulp_root / 'rgb_train', class_type)
 
         example_segment = rgb_train.video_segments[index]
@@ -115,3 +118,19 @@ class DataGenerator(keras.utils.Sequence):
             else:
                 raise ValueError('Invalid mode.')
         return frames_np
+
+
+def traverse_and_save(output_dir):
+    gen = DataGenerator(-1, -1, image_size=[32, 32], frame_length=4, shuffle=False, batch_size=1)
+
+    gulp_root = Path('/data1/yantao/epic/epic/data/processed/gulp')
+    class_type = 'verb+noun'
+    rgb_train = EpicVideoDataset(gulp_root / 'rgb_train', class_type)
+    for index, temp_sample in enumerate(tqdm(rgb_train.video_segments)):
+        example_frames = rgb_train.load_frames(temp_sample)
+        example_label = temp_sample.label
+        frames_np = gen._precess_frames(example_frames)
+        np.savez(os.path.join(output_dir, 'sample_{0:06d}.npz'.format(index)), frames=frames_np, verb=example_label['verb'], noun=example_label['noun'])
+
+if __name__ == "__main__":
+    traverse_and_save('/data1/yantao/epic_saved')
