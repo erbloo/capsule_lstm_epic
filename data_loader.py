@@ -179,7 +179,8 @@ class DataGenerator_local_np(keras.utils.Sequence):
             temp_file = self.path_list[temp_index]
             temp_data = np.load(os.path.join(self.np_path, temp_file))
             X.append(temp_data['frames'])
-            y.append(self.label_pair[int(temp_data['verb'])])
+            temp_y = self.label_pair[int(temp_data['verb'])]
+            y.append(keras.utils.to_categorical(temp_y, num_classes=self.n_classes))
         return np.array(X), np.array(y)
 
     def on_epoch_end(self):
