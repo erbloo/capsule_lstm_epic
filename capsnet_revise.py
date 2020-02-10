@@ -86,19 +86,21 @@ def train(model, data, args):
     log = callbacks.CSVLogger(args.save_dir + '/log.csv')
     tb = callbacks.TensorBoard(log_dir=args.save_dir + '/tensorboard-logs',batch_size=args.batch_size, histogram_freq=int(args.debug))
     checkpoint = callbacks.ModelCheckpoint(args.save_dir + '/weight-{epoch:02d}.h5', monitor='fc_img_out_acc',
-                                           save_best_only=False, save_weights_only=True , verbose=1)
+                                           save_best_only=True, save_weights_only=True , verbose=1)
     lr_decay = callbacks.LearningRateScheduler(schedule=lambda epoch: args.lr * (args.lr_decay ** epoch))
 
     # compile the model
     model.compile(optimizer=optimizers.Adam(lr=args.lr),
                   loss=[margin_loss, 'mse'],
                   loss_weights=[1., args.lam_recon],
-                  metrics={'fc_out': 'accuracy'})
+                  metrics={'dense_13': 'accuracy'})
 
     # Training without data augmentation:
     model.fit_generator(generator=gen_train,
                     epochs=args.epochs,
-                    callbacks=[log, tb,checkpoint, lr_decay], verbose=1,
+                    validation_data=gen_val,
+                    callbacks=[log, tb, checkpoint, lr_decay], 
+                    verbose=2,
                     use_multiprocessing=True,
                     workers=1)
 
@@ -110,7 +112,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Capsule Network on MNIST.")
     parser.add_argument('--epochs', default=50, type=int)
     parser.add_argument('--batch_size', default=1, type=int)
-    parser.add_argument('--lr', default=1e-5, type=float,
+    parser.add_argument('--lr', default=1e-2, type=float,
                         help="Initial learning rate")
     parser.add_argument('--lr_decay', default=0.9, type=float,
                         help="The value multiplied by lr at each epoch. Set a larger value for larger epochs")
@@ -135,11 +137,11 @@ if __name__ == "__main__":
     # https://github.com/epic-kitchens/starter-kit-action-recognition/tree/master/notebooks
 
     # gen_train = DataGenerator(28472, 125, image_size=[32, 32], frame_length=4, shuffle=False, batch_size=args.batch_size)
-    gen_train = DataGenerator_local_np(10, 100, '/data1/yantao/epic_saved', shuffle=False, batch_size=args.batch_size)
+    gen_train = DataGenerator_local_np(10, 100, '/data1/yantao/epic_saved', shuffle=True, batch_size=args.batch_size)
     # define model: testing data loaded only
     model = CapsNet_lstm(imgset_input_shape = [gen_train.frame_length, gen_train.image_size[0], gen_train.image_size[1], 3],
                                                   n_class=gen_train.n_classes,
                                                   routings=3)
     # model.load_weights('./test/weight_lr001_e1.h5')
 
-    train(model=model, data=(gen_train, None), args=args)
+    train(model=model, data=(gen_train, gen_train), args=args)
