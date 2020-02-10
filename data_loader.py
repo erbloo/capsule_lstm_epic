@@ -8,6 +8,7 @@ import keras
 from pathlib import Path
 from PIL import Image
 from tqdm import tqdm
+import heapq
 
 
 class DataGenerator(keras.utils.Sequence):
@@ -132,5 +133,98 @@ def traverse_and_save(output_dir):
         frames_np = gen._precess_frames(example_frames)
         np.savez(os.path.join(output_dir, 'sample_{0:06d}.npz'.format(index)), frames=frames_np, verb=example_label['verb'], noun=example_label['noun'])
 
+
+class DataGenerator_local_np(keras.utils.Sequence):
+    def __init__(
+            self, 
+            remain_num_class, 
+            samples_per_class, 
+            np_path, 
+            shuffle=False, 
+            batch_size=8
+        ):
+
+        self.shuffle = shuffle
+
+        self.batch_size = batch_size
+        
+        self.remain_num_class = remain_num_class
+        self.samples_per_class = samples_per_class
+        self.np_path = np_path
+
+        self.path_list, self.label_pair, self.frame_length, self.image_size = self._choose_verb_local_np()
+        self.number_of_samples = len(self.path_list)
+        self.n_classes = len(self.label_pair.keys())
+        assert self.remain_num_class == self.n_classes
+
+        self.on_epoch_end()
+
+    def __len__(self):
+        'Denotes the number of batches per epoch'
+        return int(self.number_of_samples / self.batch_size)
+
+    def __getitem__(self, index):
+        'Generate one batch of data'
+        # Generate indexes of the batch
+        indexes = self.indexes[index * self.batch_size : (index + 1) * self.batch_size]
+
+        # Generate data
+        X, y = self.__data_generation(indexes)
+        return [X, y], [y, X]
+
+    def __data_generation(self, indexes):
+        X = []
+        y = []
+        for temp_index in indexes:
+            temp_file = self.path_list[temp_index]
+            temp_data = np.load(os.path.join(self.np_path, temp_file))
+            X.append(temp_data['frames'])
+            y.append(self.label_pair[int(temp_data['verb'])])
+        return np.array(X), np.array(y)
+
+    def on_epoch_end(self):
+        'Updates indexes after each epoch'
+        self.indexes = np.arange(self.number_of_samples)
+        if self.shuffle == True:
+            np.random.shuffle(self.indexes)
+
+    def _choose_verb_local_np(self):
+        ori_list = os.listdir(self.np_path)
+        ori_dic = {}
+        len_dic = {}
+        is_first = True
+        for temp_file in tqdm(ori_list):
+            temp_sample = np.load(os.path.join(self.np_path, temp_file))
+            temp_verb = int(temp_sample['verb'])
+            if is_first:
+                is_first = False
+                temp_X = temp_sample['frames']
+                frame_length = temp_X.shape[0]
+                image_size = temp_X.shape[1:3]
+
+            if temp_verb not in ori_dic.keys():
+                ori_dic[temp_verb] = [temp_file]
+                len_dic[temp_verb] = 0
+            else:
+                ori_dic[temp_verb].append(temp_file)
+                len_dic[temp_verb] = len_dic[temp_verb] + 1
+        hq = []
+        for key, value in tqdm(len_dic.items()):
+            heapq.heappush(hq, (value, key))
+        chosen_list = []
+        label_pair = {}
+        for idx in range(self.remain_num_class):
+            temp_tup = heapq.heappop(hq)
+            temp_cls_list = ori_dic[temp_tup[1]]
+            label_pair[temp_tup[1]] = idx
+            if self.samples_per_class >= len(temp_cls_list):
+                chosen_list += temp_cls_list
+            else:
+                chosen_list += temp_cls_list[:self.samples_per_class]
+        return chosen_list, label_pair, frame_length, image_size
+
+
 if __name__ == "__main__":
-    traverse_and_save('/data1/yantao/epic_saved')
+    # traverse_and_save('/data1/yantao/epic_saved')
+    gen_train = DataGenerator_local_np(100, 100, '/data1/yantao/epic_saved', shuffle=False, batch_size=8)
+    gen_train.__getitem__(0)

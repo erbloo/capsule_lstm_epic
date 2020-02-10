@@ -6,7 +6,7 @@ from capsulelayers import CapsuleLayer, PrimaryCap, Length, Mask
 import os
 import argparse
 from keras import callbacks
-from data_loader import DataGenerator
+from data_loader import DataGenerator, DataGenerator_local_np
 from epic_kitchens.dataset.epic_dataset import EpicVideoDataset
 from pathlib import Path
 import pdb
@@ -133,12 +133,13 @@ if __name__ == "__main__":
     print(args)
     
     # https://github.com/epic-kitchens/starter-kit-action-recognition/tree/master/notebooks
-    gen_train = DataGenerator(28472, 125, image_size=[32, 32], frame_length=4, shuffle=False, batch_size=args.batch_size)
 
+    # gen_train = DataGenerator(28472, 125, image_size=[32, 32], frame_length=4, shuffle=False, batch_size=args.batch_size)
+    gen_train = DataGenerator_local_np(10, 100, '/data1/yantao/epic_saved', shuffle=False, batch_size=args.batch_size)
     # define model: testing data loaded only
     model = CapsNet_lstm(imgset_input_shape = [gen_train.frame_length, gen_train.image_size[0], gen_train.image_size[1], 3],
                                                   n_class=gen_train.n_classes,
                                                   routings=3)
-    model.load_weights('./test/weight_lr001_e1.h5')
+    # model.load_weights('./test/weight_lr001_e1.h5')
 
     train(model=model, data=(gen_train, None), args=args)
