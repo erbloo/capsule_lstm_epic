@@ -11,16 +11,28 @@ Prediction results are sorted firstly by timestamps and then confidence scores u
 * Processing object
 
 The information of each object is proceessed and saved in BucketEvalInfo struct.
+
 In BucketEvalInfo:
+
 |bucket_prediction_info| stores score based information in vector of |AggregatedPredictionInfo|.
+
 |predicted_pr_info| stores |pred_class| and |label_class| based information in |AggregatedPredictionInfo|.
+
 |error_type_counts| counts the number of errors for FN and FP error types.
+
 |total_pos_label| stores label number. For classification, |total_pos_label| means number of true positives + number of false negative labels. Note that in classification tasks, positive predictions that match the same positive label are regarded as two true positives. For detection, |total_pos_label| simply means number of positive labels since one positive label matches at most one prediction as true positive.
 
 * Matching strategy
 
 Flags |prediction_is_positive|, |label_is_positive|, |has_enough_overlap|, |is_best_match|, |is_true_positive| are calculated to classify predictions and labels into TP, FP, TN, FN.
 
+|prediction_is_positive|: If predicted class is positive.
+
+|label_is_positive|: If associated label is positive.
+
+|is_best_match|: Set to true for posotive labels that if the label id is not met before or previously matched predictions have no enough overlap. Note that for those predictions that |prediction_is_positive|=false are also able to match positive labels.
+
+|is_true_positive|: |prediction_is_positive| && |is_best_match|. IMPORTANT: |prediction_is_positive| && |label_is_positive| does not mean |is_true_positive|.
 
 ## Precision and Recall
 ### Classification
