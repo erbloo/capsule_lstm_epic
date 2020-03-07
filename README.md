@@ -32,9 +32,9 @@ Flags |prediction_is_positive|, |label_is_positive|, |has_enough_overlap|, |is_b
 
 |is_true_positive|: |prediction_is_positive| && |is_best_match|. IMPORTANT: |prediction_is_positive| && |label_is_positive| does not mean |is_true_positive|.
 
-## Precision and Recall
+## Calculate Precision and Recall
 ### Classification
 ### Detection
-## PR curves
+## Calculate PR curves
 ### Classification
 ### Detection
