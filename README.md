@@ -10,9 +10,7 @@ Prediction results are sorted firstly by timestamps and then confidence scores u
 ### Object processing and Matching strategy
 * Processing object
 
-The information of each object is proceessed and saved in BucketEvalInfo struct.
-
-In BucketEvalInfo:
+The information of each object is proceessed and saved in BucketEvalInfo struct. In BucketEvalInfo:
 
 |bucket_prediction_info| stores score based information in vector of |AggregatedPredictionInfo|.
 
