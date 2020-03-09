@@ -2,7 +2,7 @@
 PRCurvesExtractor class is used for Precision, Recall and PRcurves calculations. 
 
 ## Add prediction results
-All precition results that formatted in object_prediction proto are added to extractor by |AddObjPreds|.
+Precition results that formatted in object_prediction proto are sorted and added to extractor by |AddObjPreds|.
 
 ### Sorting
 Prediction results are sorted firstly by timestamps and then confidence scores using function |GetSortedIndexesByTimestampAndMergedScores|.
@@ -28,13 +28,18 @@ Flags |prediction_is_positive|, |label_is_positive|, |has_enough_overlap|, |is_b
 
 |label_is_positive|: If associated label is positive.
 
-|is_best_match|: Set to true for posotive labels that if the label id is not met before or previously matched predictions have no enough overlap. Note that for those predictions that |prediction_is_positive|=false are also able to match positive labels.
+|is_best_match|: Set to true for posotive labels that if the label id is not met before or previously matched predictions have no enough overlap. Note that for those predictions that |prediction_is_positive|=false are also able to match positive labels. For classification,
+|is_best_match| is set to true as long as |label_is_positive|=true.
 
 |is_true_positive|: |prediction_is_positive| && |is_best_match|. IMPORTANT: |prediction_is_positive| && |label_is_positive| does not mean |is_true_positive|.
 
 ## Calculate Precision and Recall
-### Classification
-### Detection
+Precision and recall for both classification and detection are calculated from |predicted_pr_info| by fomulas Recall = TP / |num_pos_label| and P = TP / (TP + FP).
 ## Calculate PR curves
-### Classification
-### Detection
+PR curves are calculated from |bucket_prediction_info|. Cumulative TP and FP are used.
+
+* For detection, the only difference is that we directly use |num_pos_label| as it is, since one label can have at most one best match prediction (redundent predictions are trated as |FPNotBestMatch| error).
+
+* For classification, in order to deal with the cases that multiple prediction associate with one label object, we define |num_pos_label|=number of TP predictions + number of FN labels. 
+
+Recall(i)=cumulative TP(i)/num_pos_label, Predision(i)=cumulative TP(i)/(cumulative TP(i) + cumulative FP(i))
