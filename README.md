@@ -24,26 +24,26 @@ The information of each object is proceessed and saved in BucketEvalInfo struct.
 
 Flags |prediction_is_positive|, |label_is_positive|, |has_enough_overlap|, |is_best_match|, |is_true_positive| are calculated to classify predictions and labels into TP, FP, TN, FN.
 
-|prediction_is_positive|: If predicted class is positive.
+**|prediction_is_positive|**: If predicted class is positive.
 
-|label_is_positive|: If associated label is positive.
+**|label_is_positive|**: If associated label is positive.
 
-|is_best_match|: Set to true for posotive labels that if the label id is not met before or previously matched predictions have no enough overlap. Note that for those predictions that |prediction_is_positive|=false are also able to match positive labels. For classification,
-|is_best_match| is set to true as long as |label_is_positive|=true.
+**|is_best_match|**: Set to true for posotive labels that if the label id is not met before or previously matched predictions have no enough overlap. Note that for those predictions that |prediction_is_positive|=false are also able to match positive labels. For classification,
+**|is_best_match|**: Set to true as long as |label_is_positive|=true.
 
-|is_true_positive|: |prediction_is_positive| && |is_best_match|. IMPORTANT: |prediction_is_positive| && |label_is_positive| does not mean |is_true_positive|.
+**|is_true_positive|**: |prediction_is_positive| && |is_best_match|. **IMPORTANT**: |prediction_is_positive| && |label_is_positive| does not mean |is_true_positive|.
 
 ## Calculate Precision and Recall
 Precision and recall for both classification and detection are calculated from |predicted_pr_info| by fomulas:
 
-Recall = TP / |total_pos_label| and Precision = TP / (TP + FP).
+**Recall = TP / |total_pos_label|** and **Precision = TP / (TP + FP)**.
 
 ## Calculate PR curves
 PR curves are calculated from |bucket_prediction_info|. Cumulative TP and FP are used.
 
-Recall(i)=cumulative TP(i)/total_pos_label
+**Recall(i)=cumulative TP(i)/total_pos_label**
 
-Predision(i)=cumulative TP(i)/(cumulative TP(i) + cumulative FP(i))
+**Predision(i)=cumulative TP(i)/(cumulative TP(i) + cumulative FP(i))**
 
 * For detection, the only difference is that we directly use |total_pos_label| as it is, since one label can have at most one best match prediction (redundent predictions are trated as |FPNotBestMatch| error).
 
