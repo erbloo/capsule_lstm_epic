@@ -34,7 +34,10 @@ Flags |prediction_is_positive|, |label_is_positive|, |has_enough_overlap|, |is_b
 |is_true_positive|: |prediction_is_positive| && |is_best_match|. IMPORTANT: |prediction_is_positive| && |label_is_positive| does not mean |is_true_positive|.
 
 ## Calculate Precision and Recall
-Precision and recall for both classification and detection are calculated from |predicted_pr_info| by fomulas Recall = TP / |num_pos_label| and P = TP / (TP + FP).
+Precision and recall for both classification and detection are calculated from |predicted_pr_info| by fomulas:
+
+Recall = TP / |total_pos_label| and P = TP / (TP + FP).
+
 ## Calculate PR curves
 PR curves are calculated from |bucket_prediction_info|. Cumulative TP and FP are used.
 
@@ -42,4 +45,6 @@ PR curves are calculated from |bucket_prediction_info|. Cumulative TP and FP are
 
 * For classification, in order to deal with the cases that multiple prediction associate with one label object, we define |total_pos_label|=number of TP predictions + number of FN labels. 
 
-Recall(i)=cumulative TP(i)/total_pos_label, Predision(i)=cumulative TP(i)/(cumulative TP(i) + cumulative FP(i))
+Recall(i)=cumulative TP(i)/total_pos_label
+
+Predision(i)=cumulative TP(i)/(cumulative TP(i) + cumulative FP(i))
