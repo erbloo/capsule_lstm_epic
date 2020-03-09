@@ -1,5 +1,6 @@
-# pr_curves_extractor
-PRCurvesExtractor class is used for Precision, Recall and PRcurves calculations. 
+# PRCurvesExtractor
+|PRCurvesExtractor| class is used for Precision, Recall and PRcurves calculations. 
+It is implemented in pr_curves_extractor.h/.cpp.
 
 ## Add prediction results
 Prediction results that formatted in object_prediction proto are sorted and added to extractor by |AddObjPreds|.
@@ -28,8 +29,7 @@ Flags |prediction_is_positive|, |label_is_positive|, |has_enough_overlap|, |is_b
 
 **|label_is_positive|**: If associated label is positive.
 
-**|is_best_match|**: Set to true for posotive labels that if the label id is not met before or previously matched predictions have no enough overlap. Note that for those predictions that |prediction_is_positive|=false are also able to match positive labels. For classification,
-**|is_best_match|**: Set to true as long as |label_is_positive|=true.
+**|is_best_match|**: Set to true for posotive labels that if the label id is not met before or previously matched predictions have no enough overlap. Note that for those predictions that |prediction_is_positive| = false are also able to match positive labels. For classification, |is_best_match| is set to true as long as |label_is_positive| is true.
 
 **|is_true_positive|**: |prediction_is_positive| && |is_best_match|. **IMPORTANT**: |prediction_is_positive| && |label_is_positive| does not mean |is_true_positive|.
 
