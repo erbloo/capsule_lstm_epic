@@ -2,7 +2,7 @@
 PRCurvesExtractor class is used for Precision, Recall and PRcurves calculations. 
 
 ## Add prediction results
-Precition results that formatted in object_prediction proto are sorted and added to extractor by |AddObjPreds|.
+Prediction results that formatted in object_prediction proto are sorted and added to extractor by |AddObjPreds|.
 
 ### Sorting
 Prediction results are sorted firstly by timestamps and then confidence scores using function |GetSortedIndexesByTimestampAndMergedScores|.
@@ -38,8 +38,8 @@ Precision and recall for both classification and detection are calculated from |
 ## Calculate PR curves
 PR curves are calculated from |bucket_prediction_info|. Cumulative TP and FP are used.
 
-* For detection, the only difference is that we directly use |num_pos_label| as it is, since one label can have at most one best match prediction (redundent predictions are trated as |FPNotBestMatch| error).
+* For detection, the only difference is that we directly use |total_pos_label| as it is, since one label can have at most one best match prediction (redundent predictions are trated as |FPNotBestMatch| error).
 
-* For classification, in order to deal with the cases that multiple prediction associate with one label object, we define |num_pos_label|=number of TP predictions + number of FN labels. 
+* For classification, in order to deal with the cases that multiple prediction associate with one label object, we define |total_pos_label|=number of TP predictions + number of FN labels. 
 
-Recall(i)=cumulative TP(i)/num_pos_label, Predision(i)=cumulative TP(i)/(cumulative TP(i) + cumulative FP(i))
+Recall(i)=cumulative TP(i)/total_pos_label, Predision(i)=cumulative TP(i)/(cumulative TP(i) + cumulative FP(i))
