@@ -12,13 +12,13 @@ Prediction results are sorted firstly by timestamps and then confidence scores u
 
 The information of each object is proceessed and saved in BucketEvalInfo struct. In BucketEvalInfo:
 
-|bucket_prediction_info| stores score based information in vector of |AggregatedPredictionInfo|.
+**|bucket_prediction_info|** stores score based information in vector of |AggregatedPredictionInfo|.
 
-|predicted_pr_info| stores |pred_class| and |label_class| based information in |AggregatedPredictionInfo|.
+**|predicted_pr_info|** stores |pred_class| and |label_class| based information in |AggregatedPredictionInfo|.
 
-|error_type_counts| counts the number of errors for FN and FP error types.
+**|error_type_counts|** counts the number of errors for FN and FP error types.
 
-|total_pos_label| stores label number. For classification, |total_pos_label| means number of true positives + number of false negative labels. Note that in classification tasks, positive predictions that match the same positive label are regarded as two true positives. For detection, |total_pos_label| simply means number of positive labels since one positive label matches at most one prediction as true positive.
+**|total_pos_label|** stores label number. For classification, |total_pos_label| means number of true positives + number of false negative labels. Note that in classification tasks, positive predictions that match the same positive label are regarded as two true positives. For detection, |total_pos_label| simply means number of positive labels since one positive label matches at most one prediction as true positive.
 
 * Matching strategy
 
@@ -36,15 +36,15 @@ Flags |prediction_is_positive|, |label_is_positive|, |has_enough_overlap|, |is_b
 ## Calculate Precision and Recall
 Precision and recall for both classification and detection are calculated from |predicted_pr_info| by fomulas:
 
-Recall = TP / |total_pos_label| and P = TP / (TP + FP).
+Recall = TP / |total_pos_label| and Precision = TP / (TP + FP).
 
 ## Calculate PR curves
 PR curves are calculated from |bucket_prediction_info|. Cumulative TP and FP are used.
 
-* For detection, the only difference is that we directly use |total_pos_label| as it is, since one label can have at most one best match prediction (redundent predictions are trated as |FPNotBestMatch| error).
-
-* For classification, in order to deal with the cases that multiple prediction associate with one label object, we define |total_pos_label|=number of TP predictions + number of FN labels. 
-
 Recall(i)=cumulative TP(i)/total_pos_label
 
 Predision(i)=cumulative TP(i)/(cumulative TP(i) + cumulative FP(i))
+
+* For detection, the only difference is that we directly use |total_pos_label| as it is, since one label can have at most one best match prediction (redundent predictions are trated as |FPNotBestMatch| error).
+
+* For classification, in order to deal with the cases that multiple prediction associate with one label object, we define |total_pos_label|=number of TP predictions + number of FN labels. 
