@@ -2,6 +2,13 @@
 |PRCurvesExtractor| class is used for Precision, Recall and PRcurves calculations. 
 It is implemented in pr_curves_extractor.h/.cpp.
 
+**major public functions:**
+**AddObjPreds:** Accumulates |pred_results| into internal states.
+
+**ExportPRCurves:** Exports PR Curves for |pos_cls_combines_|.
+
+**ExportPRs:** Calculates the precisions and recalls for |pos_cls_combines_|.
+
 ## Add prediction results
 Prediction results that formatted in object_prediction proto are sorted and added to extractor by |AddObjPreds|.
 
