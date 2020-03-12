@@ -4,19 +4,19 @@ It is implemented in pr_curves_extractor.h/.cpp.
 
 ## Internal states:
 
-* **|pos_cls_combines_|:** |pos_cls_combines_| describes all the combinations used for PR results in this extractor. Each element is a combination of classes, the classes inside the combiatnion will be merged.
+**|pos_cls_combines_|:** |pos_cls_combines_| describes all the combinations used for PR results in this extractor. Each element is a combination of classes, the classes inside the combiatnion will be merged.
 
-* **|curr_label_to_matched_prediction|:** Used for storing positive labels and the associated |pred_obj| information.
+**|curr_label_to_matched_prediction|:** Used for storing positive labels and the associated |pred_obj| information.
 
-* **|cumulative_bucket_eval_info_|:** |BucketEvalInfo| from accumulative data of all the combines in |pos_cls_combines_|. |BucketEvalInfo| contains:
+**|cumulative_bucket_eval_info_|:** |BucketEvalInfo| from accumulative data of all the combines in |pos_cls_combines_|. |BucketEvalInfo| contains:
 
-**|bucket_prediction_info|** : Score based prediction information, which is used for  PR-curves cumulative calculation.
+* **|bucket_prediction_info|** : Score based prediction information, which is used for  PR-curves cumulative calculation.
 
-**|predicted_pr_info|** : Predict label based prediction information, which is used for precision and recall calculation.
+* **|predicted_pr_info|** : Predict label based prediction information, which is used for precision and recall calculation.
 
-**|error_type_counts|** : The number of errors for FN and FP error types.
+* **|error_type_counts|** : The number of errors for FN and FP error types.
 
-**|total_pos_label|** : Label number. For classification, |total_pos_label| means number of true positives + number of false negative labels. Note that in classification tasks, positive predictions that match the same positive label are regarded as two true positives. For detection, |total_pos_label| simply means number of positive labels since one positive label matches at most one prediction as true positive.
+* **|total_pos_label|** : Label number. For classification, |total_pos_label| means number of true positives + number of false negative labels. Note that in classification tasks, positive predictions that match the same positive label are regarded as two true positives. For detection, |total_pos_label| simply means number of positive labels since one positive label matches at most one prediction as true positive.
 
 ## Major public functions:
 
