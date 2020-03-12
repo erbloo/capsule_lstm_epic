@@ -10,13 +10,13 @@ It is implemented in pr_curves_extractor.h/.cpp.
 
 **|cumulative_bucket_eval_info_|:** |BucketEvalInfo| from accumulative data of all the combines in |pos_cls_combines_|. |BucketEvalInfo| contains:
 
-    **|bucket_prediction_info|** : stores score based prediction information, which is used for  PR-curves cumulative calculation.
+    |bucket_prediction_info| : stores score based prediction information, which is used for  PR-curves cumulative calculation.
 
-    **|predicted_pr_info|** : Stores predict label based prediction information, which is used for precision and recall calculation.
+    |predicted_pr_info| : Stores predict label based prediction information, which is used for precision and recall calculation.
 
-    **|error_type_counts|** : the number of errors for FN and FP error types.
+    |error_type_counts| : the number of errors for FN and FP error types.
 
-    **|total_pos_label|** : label number. For classification, |total_pos_label| means number of true positives + number of false negative labels. Note that in classification tasks, positive predictions that match the same positive label are regarded as two true positives. For detection, |total_pos_label| simply means number of positive labels since one positive label matches at most one prediction as true positive.
+    |total_pos_label| : label number. For classification, |total_pos_label| means number of true positives + number of false negative labels. Note that in classification tasks, positive predictions that match the same positive label are regarded as two true positives. For detection, |total_pos_label| simply means number of positive labels since one positive label matches at most one prediction as true positive.
 
 
 
